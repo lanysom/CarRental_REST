@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace CarRental_v3
+namespace CarRental.DataAccessLayer.Model
 {
     /// <summary>
     /// A class representing a car
@@ -11,6 +11,7 @@ namespace CarRental_v3
         public string Brand { get; set; }
         public string Model { get; set; }
         public DateTime? Rented { get; set; }
+        public string Location { get; set; }
 
         public override string ToString()
         {

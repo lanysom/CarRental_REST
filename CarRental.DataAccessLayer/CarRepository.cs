@@ -7,7 +7,7 @@ using System.Linq;
 
 namespace CarRental.DataAccessLayer
 {
-    public class CarRepository
+    public class CarRepository 
     {
         /// <summary>
         /// Gets a list of available cars
@@ -49,15 +49,15 @@ namespace CarRental.DataAccessLayer
         /// </summary>
         /// <param name="id">The identity of the car to be rented</param>
         /// <returns>A value indicating that the operation succeeded</returns>
-        public bool RentCar(int id, string employee, string location)
+        public bool RentCar(int id, string employee)
         {
             const string UPDATE_SQL = @"UPDATE Cars 
                                         SET Rented = @rented, RentedBy = @employee, Returned = NULL, ReturnedBy = NULL, Location = NULL
-                                        WHERE Id = @id AND Rented IS NULL AND Location = @location ";
+                                        WHERE Id = @id AND Rented IS NULL ";
 
             using (var conn = Database.Open())
             {
-                var rows = conn.Execute(UPDATE_SQL, new { id, employee, location, rented = DateTime.Now });
+                var rows = conn.Execute(UPDATE_SQL, new { id, employee, rented = DateTime.Now });
                 return rows == 1;
             }
         }

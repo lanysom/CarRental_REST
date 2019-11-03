@@ -10,7 +10,7 @@ namespace CarRental.DataAccessLayer.Model
         public int Id { get; set; }
         public string Brand { get; set; }
         public string Model { get; set; }
-        public DateTime? Rented { get; set; }
+        public bool Rented { get; set; }
         public string Location { get; set; }
 
         public override string ToString()

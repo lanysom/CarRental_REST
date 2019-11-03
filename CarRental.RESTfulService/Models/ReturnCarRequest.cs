@@ -3,13 +3,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 
-namespace CarRentalService.Models
+namespace CarRental.RESTfulService.Models
 {
-    public class ReturnCarRequestDto
+    public class ReturnCarRequest
     {
         public int CarId { get; set; }
         public string Employee { get; set; }
         public string Location { get; set; }
-        public Action Action { get; set; }
     }
 }

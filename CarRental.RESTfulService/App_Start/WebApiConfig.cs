@@ -1,10 +1,9 @@
-﻿using CarRental.DataAccessLayer;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web.Http;
 
-namespace CarRentalService
+namespace CarRental.RESTfulService
 {
     public static class WebApiConfig
     {
@@ -16,10 +15,16 @@ namespace CarRentalService
             config.MapHttpAttributeRoutes();
 
             config.Routes.MapHttpRoute(
+                name: "ActionApi",
+                routeTemplate: "api/{controller}/{action}"
+            );
+
+            config.Routes.MapHttpRoute(
                 name: "DefaultApi",
                 routeTemplate: "api/{controller}/{id}",
                 defaults: new { id = RouteParameter.Optional }
             );
+
         }
     }
 }

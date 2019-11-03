@@ -7,38 +7,23 @@ using System.Linq;
 
 namespace CarRental.DataAccessLayer
 {
-    public class CarRepository 
+    public class CarRepository
     {
-        /// <summary>
-        /// Gets a list of available cars
-        /// </summary>
-        public IEnumerable<Car> GetAvailable(string location = null)
-        {
-            const string SELECT_SQL = @"SELECT *
-                                        FROM Cars
-                                        WHERE Rented IS NULL";
+        private readonly Func<IDbConnection> _openConnection;
 
-            using (var conn = Database.Open())
-            {
-                var data = conn.Query<Car>(SELECT_SQL);
-                if (location != null)
-                {
-                    return data.Where(c => c.Location == location);
-                }
-                return data;
-            }
+        public CarRepository(Func<IDbConnection> openConnection)
+        {
+            _openConnection = openConnection;
         }
 
         /// <summary>
         /// Gets a list of rented cars
         /// </summary>
-        public IEnumerable<Car> GetRentedCars()
+        public IEnumerable<Car> GetAll()
         {
-            const string SELECT_SQL = @"SELECT *
-                                        FROM Cars
-                                        WHERE Rented IS NOT NULL";
+            const string SELECT_SQL = @"SELECT * FROM Cars";
 
-            using (var conn = Database.Open())
+            using (var conn = _openConnection())
             {
                 return conn.Query<Car>(SELECT_SQL);
             }
@@ -52,12 +37,12 @@ namespace CarRental.DataAccessLayer
         public bool RentCar(int id, string employee)
         {
             const string UPDATE_SQL = @"UPDATE Cars 
-                                        SET Rented = @rented, RentedBy = @employee, Returned = NULL, ReturnedBy = NULL, Location = NULL
-                                        WHERE Id = @id AND Rented IS NULL ";
+                                        SET Rented = 1, Employee = @employee, Location = NULL
+                                        WHERE Id = @id ";
 
-            using (var conn = Database.Open())
+            using (var conn = _openConnection())
             {
-                var rows = conn.Execute(UPDATE_SQL, new { id, employee, rented = DateTime.Now });
+                var rows = conn.Execute(UPDATE_SQL, new { id, employee });
                 return rows == 1;
             }
         }
@@ -70,16 +55,14 @@ namespace CarRental.DataAccessLayer
         public bool ReturnCar(int id, string employee, string location)
         {
             const string UPDATE_SQL = @"UPDATE Cars 
-                                        SET Rented = NULL, 
-                                            RentedBy = NULL, 
-                                            Returned = @returned, 
-                                            ReturnedBy = @employee, 
+                                        SET Rented = 0, 
+                                            Employee = @employee,
                                             Location = @location 
-                                        WHERE Id = @id AND Rented IS NOT NULL";
+                                        WHERE Id = @id ";
 
-            using (var conn = Database.Open())
+            using (var conn = _openConnection())
             {
-                var rows = conn.Execute(UPDATE_SQL, new { id, employee, location, returned = DateTime.Now });
+                var rows = conn.Execute(UPDATE_SQL, new { id, employee, location });
                 return rows == 1;
             }
         }
@@ -93,12 +76,14 @@ namespace CarRental.DataAccessLayer
         {
             const string INSERT_SQL = "INSERT INTO Cars (Brand, Model) VALUES (@brand, @model);";
 
-            using (var conn = Database.Open())
+
+            using (var conn = _openConnection())
             {
                 var rows = conn.Execute(INSERT_SQL, car);
                 return rows == 1;
             }
         }
+
 
         /// <summary>
         /// Deletes a car from the database
@@ -108,8 +93,7 @@ namespace CarRental.DataAccessLayer
         public bool DeleteCar(int id)
         {
             const string DELETE_SQL = "DELETE FROM Cars WHERE Id = @id";
-
-            using (var conn = Database.Open())
+            using (var conn = _openConnection())
             {
                 var rows = conn.Execute(DELETE_SQL, new { id });
 
